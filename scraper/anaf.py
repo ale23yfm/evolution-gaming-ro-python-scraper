@@ -11,7 +11,6 @@ Strategy:
 """
 
 import json
-import os
 import pathlib
 
 import requests

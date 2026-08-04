@@ -44,6 +44,13 @@ def test_upsert_jobs_throws_on_http_error(mock_post):
         api.upsert_jobs([{"url": "u", "cif": "36034853"}])
 
 
+def test_upsert_jobs_throws_on_success_false(mock_post):
+    mock_post.return_value.status_code = 200
+    mock_post.return_value.json.return_value = {"success": False}
+    with pytest.raises(RuntimeError, match="upload failed"):
+        api.upsert_jobs([{"url": "u", "cif": "36034853"}])
+
+
 def test_delete_job_by_url(mock_delete):
     mock_delete.return_value.status_code = 200
     mock_delete.return_value.json.return_value = {"success": True}
@@ -61,6 +68,13 @@ def test_delete_job_by_url_throws_on_http_error(mock_delete):
     mock_delete.return_value.text = "boom"
     with pytest.raises(RuntimeError, match="500"):
         api.delete_job_by_url("https://example.com/job")
+
+
+def test_delete_jobs_by_cif_throws_on_success_false(mock_delete):
+    mock_delete.return_value.status_code = 200
+    mock_delete.return_value.json.return_value = {"success": False}
+    with pytest.raises(RuntimeError, match="delete failed"):
+        api.delete_jobs_by_cif("36034853")
 
 
 def test_upsert_company_keeps_id(mock_put):

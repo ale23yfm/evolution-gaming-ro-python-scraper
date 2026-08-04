@@ -111,6 +111,8 @@ def delete_jobs_by_cif(cif):
     if res.status_code != 200:
         raise RuntimeError(f"API jobs delete error: {res.status_code} - {res.text}")
     data = res.json()
+    if not data.get("success"):
+        raise RuntimeError(f"API jobs delete failed: {data}")
     print(f"✅ Deleted {data.get('count', 0)} jobs for CIF {cif} via API.")
 
 
@@ -145,6 +147,8 @@ def upsert_jobs(jobs):
     if res.status_code != 200:
         raise RuntimeError(f"API jobs upload error: {res.status_code} - {res.text}")
     data = res.json()
+    if not data.get("success"):
+        raise RuntimeError(f"API jobs upload failed: {data}")
     print(f"✅ Upserted {data.get('count', len(jobs))} jobs via API.")
 
 

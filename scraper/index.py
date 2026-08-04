@@ -90,8 +90,15 @@ def parse_api_jobs(vacancies):
     jobs = []
     seen_ids = set()
 
+    if not isinstance(vacancies, list):
+        return jobs
+
     for vacancy in vacancies or []:
+        if not isinstance(vacancy, dict):
+            continue
         loc = vacancy.get("location") or {}
+        if not isinstance(loc, dict):
+            loc = {}
         if (loc.get("country") or "").lower() != "ro":
             continue
         job_id = str(vacancy.get("id") or "").strip()
@@ -286,8 +293,6 @@ def main(root=None):
     transformed_payload = transform_jobs_for_solr(payload)
     valid_count = len([j for j in transformed_payload["jobs"] if j.get("location")])
     print(f"Jobs with valid Romanian locations: {valid_count}")
-
-    root = root or pathlib.Path(__file__).resolve().parents[1]
 
     # jobs.json
     jobs_path = root / "scraper" / "jobs.json"
