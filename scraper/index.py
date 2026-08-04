@@ -35,7 +35,7 @@ COMPANY_NAME = None
 # scrapers (aggregators). Stale deletion must only ever touch jobs that this
 # scraper itself published (i.e. URLs on the Evolution careers board), so we
 # scope it to this prefix instead of the whole CIF.
-JOB_DETAILS_PREFIX = f"{API_BASE}/job/"
+JOB_DETAILS_PREFIX = scraper_config["jobDetailsPrefix"]
 
 # Map Evolution's English city names to the Romanian names used on peviitor.ro.
 _CITY_ALIASES = {
@@ -49,8 +49,13 @@ def build_listing_url():
 
 
 def build_job_url(job_id):
-    """Builds the canonical job detail URL (no query string)."""
-    return f"{API_BASE}/job/{job_id}"
+    """Builds the canonical job detail URL.
+
+    careers.evolution.com redirects the no-slash form (301) to the trailing-
+    slash URL. Validators treat any 3xx as expired, so we must store the
+    canonical form: 200 for a live job, 404 for a removed one.
+    """
+    return f"{API_BASE}/job/{job_id}/"
 
 
 def extract_location(location_text):

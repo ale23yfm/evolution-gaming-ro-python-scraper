@@ -56,11 +56,11 @@ def test_build_listing_url(scraper_config):
 
 
 def test_build_job_url():
-    assert index.build_job_url(12345) == "https://careers.evolution.com/job/12345"
+    assert index.build_job_url(12345) == "https://careers.evolution.com/job/12345/"
 
 
 def test_build_job_url_preserves_job_id():
-    assert index.build_job_url("REF1898P") == "https://careers.evolution.com/job/REF1898P"
+    assert index.build_job_url("REF1898P") == "https://careers.evolution.com/job/REF1898P/"
 
 
 def test_extract_location_takes_first_token_and_aliases_bucharest():
@@ -81,7 +81,7 @@ def test_parse_api_jobs_ro_only():
     jobs = index.parse_api_jobs(SAMPLE_VACANCIES)
     assert len(jobs) == 2
     by_url = {j["url"]: j for j in jobs}
-    first = by_url["https://careers.evolution.com/job/12345"]
+    first = by_url["https://careers.evolution.com/job/12345/"]
     assert first["title"] == "Entry Level Game Presenter"
     assert first["location"] == ["Bucuresti"]
     assert first["tags"] == ["Operations"]
@@ -91,8 +91,8 @@ def test_parse_api_jobs_ro_only():
 def test_parse_api_jobs_workmode_flags():
     jobs = index.parse_api_jobs(SAMPLE_VACANCIES)
     by_url = {j["url"]: j for j in jobs}
-    assert by_url["https://careers.evolution.com/job/67890"]["workmode"] == "remote"
-    assert by_url["https://careers.evolution.com/job/12345"]["workmode"] == "on-site"
+    assert by_url["https://careers.evolution.com/job/67890/"]["workmode"] == "remote"
+    assert by_url["https://careers.evolution.com/job/12345/"]["workmode"] == "on-site"
 
 
 def test_parse_api_jobs_deduplicates():
@@ -114,7 +114,7 @@ def test_parse_api_jobs_skips_missing_id_or_title():
 
 
 def test_map_to_job_model_adds_company_and_status():
-    raw = {"url": "https://careers.evolution.com/job/12345",
+    raw = {"url": "https://careers.evolution.com/job/12345/",
            "title": "Entry Level Game Presenter", "location": ["Bucuresti"],
            "workmode": "on-site", "tags": ["Operations"]}
     index.COMPANY_NAME = COMPANY
@@ -154,14 +154,14 @@ def test_transform_missing_workmode_dropped():
 
 
 def test_generate_jobs_markdown(tmp_path, company_config):
-    jobs = [{"url": "https://careers.evolution.com/job/12345", "title": "Game Presenter",
+    jobs = [{"url": "https://careers.evolution.com/job/12345/", "title": "Game Presenter",
              "company": COMPANY, "cif": CIF,
              "location": ["Bucuresti"], "workmode": "on-site"}]
     md = index.generate_jobs_markdown(company_config, jobs)
     assert f"# {company_config['company']}" in md
     assert "## Jobs (1)" in md
     assert "Game Presenter" in md
-    assert "](https://careers.evolution.com/job/12345)" in md
+    assert "](https://careers.evolution.com/job/12345/)" in md
 
 
 def test_generate_jobs_markdown_empty():
@@ -171,7 +171,7 @@ def test_generate_jobs_markdown_empty():
 
 
 def test_main_dry_run_writes_summary(tmp_path, monkeypatch):
-    fake_jobs = [{"url": f"https://careers.evolution.com/job/{i}", "title": f"Job {i}",
+    fake_jobs = [{"url": f"https://careers.evolution.com/job/{i}/", "title": f"Job {i}",
                   "location": ["Bucuresti"]}
                  for i in range(3)]
     monkeypatch.setattr(index, "parse_api_jobs", lambda vacancies: fake_jobs)
