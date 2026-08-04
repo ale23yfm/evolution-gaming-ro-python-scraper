@@ -32,6 +32,25 @@ The project automates the daily collection of EVOLUTION jobs in Romania, keeping
 - GitHub Actions: daily scrape + automated testing (unit, integration, e2e, consistency)
 - Identifies itself through the User-Agent: `job_seeker_ro_spider`
 
+## Deduplication
+
+Aggregator scrapers (e.g. `jobviewtrack`) sometimes publish the same job under
+several redirecting URLs, so peviitor SOLR ends up with listings that resolve
+to the same final page. `scraper/deduplicate.py` groups the listings of a
+company/brand by their final URL (following redirects) and keeps one per group:
+
+```bash
+# preview only (read-only)
+python3 -m scraper.deduplicate "EVOLUTION GAMING" --dry-run
+
+# delete duplicates and re-attribute the kept listings with the
+# company model's CIF and company name (scraper/config/company.json)
+python3 -m scraper.deduplicate "EVOLUTION GAMING" --delete
+```
+
+The same can be triggered manually from the
+[Deduplicate Jobs](.github/workflows/job-deduplicate.yml) workflow.
+
 ## License
 
 Copyright (c) 2026 Alexandra Ifrim

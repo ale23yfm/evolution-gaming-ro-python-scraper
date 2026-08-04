@@ -1,0 +1,59 @@
+name: Deduplicate Jobs
+
+on:
+  workflow_dispatch:
+    inputs:
+      company:
+        description: 'Company/brand as indexed in SOLR (e.g. "EVOLUTION GAMING")'
+        required: true
+        type: string
+      delete:
+        description: 'Delete duplicates and re-attribute the kept listings (default: dry-run)'
+        required: false
+        default: 'false'
+        type: boolean
+      limit:
+        description: 'Max docs to process, 0 = all (default: 0)'
+        required: false
+        default: '0'
+        type: string
+      workers:
+        description: 'Parallel URL resolutions (default: 1)'
+        required: false
+        default: '1'
+        type: string
+      wait:
+        description: 'Seconds to wait between URL resolutions to avoid HTTP 429 (default: 1)'
+        required: false
+        default: '1'
+        type: string
+
+jobs:
+  deduplicate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
+
+      - name: Run deduplicate
+        run: |
+          ARGS="--workers ${{ inputs.workers }} --wait ${{ inputs.wait }}"
+          if [ "${{ inputs.limit }}" != "0" ]; then
+            ARGS="$ARGS --limit ${{ inputs.limit }}"
+          fi
+          if [ "${{ inputs.delete }}" = "true" ]; then
+            ARGS="$ARGS --delete"
+          else
+            ARGS="$ARGS --dry-run"
+          fi
+          python3 -m scraper.deduplicate "${{ inputs.company }}" $ARGS
