@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="pageTitle">Locuri de muncă — peviitor.ro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #fdf6f0 0%, #f5e6d3 50%, #f0dcc8 100%);
+      color: #2d2a24;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    header {
+      text-align: center;
+      padding: 1.5rem 0 2rem;
+      position: relative;
+    }
+    .logo-link {
+      display: inline-block;
+      line-height: 0;
+    }
+    .logo-img {
+      height: 32px;
+      width: auto;
+      transition: opacity 0.2s;
+    }
+    .logo-img:hover { opacity: 0.8; }
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #c44536;
+      letter-spacing: -0.02em;
+      margin: 0.5rem 0 0.25rem;
+    }
+    header p {
+      color: #7d6b5a;
+      font-size: 0.9rem;
+    }
+    header .scraper-tag {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.3rem 0.85rem;
+      background: #e8d5c4;
+      border-radius: 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: #5a4a3a;
+    }
+
+    .lang-toggle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: flex;
+      gap: 4px;
+    }
+    .lang-toggle button {
+      background: #fff;
+      border: 1px solid #e0cfbd;
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #7d6b5a;
+      transition: all 0.2s;
+    }
+    .lang-toggle button.active {
+      background: #c44536;
+      color: #fff;
+      border-color: #c44536;
+    }
+    .lang-toggle button:hover { background: #d0b9a6; }
+
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 0.9rem 1.25rem;
+      font-weight: 700;
+      font-size: 1rem;
+      border-bottom: 1px solid #f0e3d5;
+      color: #4a3f35;
+    }
+    .card-body { padding: 1.25rem; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #c44536;
+    }
+    .stat-label {
+      color: #7d6b5a;
+      font-size: 0.85rem;
+    }
+    .stat-time .stat-value { font-size: 1.1rem; }
+
+    .features-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .features-list li {
+      padding: 0.35rem 0;
+      color: #3d3831;
+    }
+    .features-list li::before {
+      content: "▸ ";
+      color: #c44536;
+    }
+
+    .company-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem 1.5rem;
+    }
+    .company-item { font-size: 0.9rem; }
+    .company-item a { color: #c44536; word-break: break-all; }
+    .company-item strong { color: #4a3f35; }
+
+    .btn-wrapper {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 1rem 0 1.5rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.65rem 1.3rem;
+      background: #c44536;
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+
+    .job-item {
+      padding: 0.75rem 0.25rem;
+      border-bottom: 1px solid #f0e3d5;
+    }
+    .job-item:last-child { border-bottom: none; }
+    .job-item a {
+      color: #2d2a24;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .job-item a:hover { color: #c44536; text-decoration: underline; }
+    .job-meta {
+      margin-top: 0.25rem;
+      font-size: 0.82rem;
+      color: #7d6b5a;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .empty-state { color: #9a8a7a; font-style: italic; }
+
+    footer {
+      text-align: center;
+      padding-top: 1.5rem;
+      color: #7d6b5a;
+      font-size: 0.85rem;
+    }
+    footer a { color: #c44536; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="lang-toggle">
+      <button onclick="setLang('en')" id="lang-en">EN</button>
+      <button onclick="setLang('ro')" id="lang-ro" class="active">RO</button>
+    </div>
+    <a href="https://peviitor.ro" target="_blank" class="logo-link">
+      <img src="https://peviitor.ro/assets/logo-DV2JQkir.svg" alt="peviitor" class="logo-img">
+    </a>
+    <h1 data-i18n="pageTitle">Locuri de muncă</h1>
+    <p data-i18n="subtitle">Scraper automat pentru locurile de muncă EVOLUTION</p>
+
+    <div style="margin: 15px 0; display:flex; flex-wrap:wrap; gap:8px; justify-content:center;">
+      <a href="https://github.com/ale23yfm/evolution-gaming-ro-python-scraper/actions/workflows/job-seeker-ro-spider.yml" target="_blank">
+        <img src="https://github.com/ale23yfm/evolution-gaming-ro-python-scraper/actions/workflows/job-seeker-ro-spider.yml/badge.svg" alt="Scraper Status">
+      </a>
+      <a href="https://github.com/ale23yfm/evolution-gaming-ro-python-scraper/actions/workflows/automation-testing.yml" target="_blank">
+        <img src="https://github.com/ale23yfm/evolution-gaming-ro-python-scraper/actions/workflows/automation-testing.yml/badge.svg" alt="Tests Status">
+      </a>
+      <a href="https://github.com/ale23yfm/evolution-gaming-ro-python-scraper/blob/main/CHANGELOG.md" target="_blank">
+        <img src="https://img.shields.io/badge/version-1.0.0-blue" alt="Version">
+      </a>
+      <a href="https://github.com/ale23yfm/evolution-gaming-ro-python-scraper/blob/main/LICENSE" target="_blank">
+        <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License">
+      </a>
+      <a href="https://www.python.org/" target="_blank">
+        <img src="https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
+      </a>
+      <a href="test-results/" target="_blank">
+        <img src="https://img.shields.io/badge/test--results-HTML-9b59b6" alt="Test Results">
+      </a>
+    </div>
+
+    <div class="scraper-tag">job_seeker_ro_spider</div>
+  </header>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="stats" id="statsContainer">
+        <div class="stat">
+          <div class="stat-value" id="jobsCount">—</div>
+          <div class="stat-label" data-i18n="jobsLabel">Job-uri</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="verifiedCount">—</div>
+          <div class="stat-label" data-i18n="verifiedLabel">Verificate</div>
+        </div>
+        <div class="stat stat-time">
+          <div class="stat-value" id="lastRunTime">—</div>
+          <div class="stat-label" id="lastRunDate">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" data-i18n="aboutTitle">Despre acest scraper</div>
+    <div class="card-body">
+      <ul class="features-list" data-i18n="featuresList">
+        <li data-i18n="f1">Extrage job-uri de pe board-ul careers.evolution.com</li>
+        <li data-i18n="f2">Parsează API-ul JSON WordPress</li>
+        <li data-i18n="f3">Validează compania via ANAF</li>
+        <li data-i18n="f4">Verifică și elimină job-uri expirate</li>
+        <li data-i18n="f5">Salvează în API-ul Peviitor v1</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" id="companyCard">
+    <div class="card-header" data-i18n="companyTitle">Despre companie</div>
+    <div class="card-body">
+      <div class="company-grid" id="companyDetails"></div>
+    </div>
+  </div>
+
+  <div class="btn-wrapper" style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+    <a class="btn" href="https://github.com/ale23yfm/evolution-gaming-ro-python-scraper/actions/workflows/job-seeker-ro-spider.yml" target="_blank">
+      <span>&#9654;</span> <span data-i18n="runBtn">Rulează Scraper</span>
+    </a>
+    <a class="btn" href="test-results/" style="background:#7d6b5a;">
+      <span>&#128203;</span> <span data-i18n="testResults">Rezultate Teste</span>
+    </a>
+    <a class="btn" href="jobs.md" target="_blank" style="background:#4a7c59;">
+      <span>&#128196;</span> <span data-i18n="jobsMd">Jobs MD</span>
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="card-header" data-i18n="jobsTitle">Locuri de muncă disponibile</div>
+    <div class="card-body" id="jobsContainer">
+      <div id="jobsList"></div>
+      <div class="empty-state" id="jobsEmpty" data-i18n="jobsEmpty">Se încarcă...</div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="https://github.com/ale23yfm/evolution-gaming-ro-python-scraper" target="_blank">GitHub</a> &middot;
+    <a href="https://peviitor.ro/" target="_blank">peviitor.ro</a>
+  </footer>
+
+</div>
+
+<script>
+// Loaded from docs/company.json (regenerated on every scrape)
+let COMPANY = "EVOLUTION PRODUCTS RO S.R.L.";
+let COMPANY_CIF = "36034853";
+
+async function loadCompanyConfig() {
+  try {
+    const res = await fetch("./company.json", { cache: "no-cache" });
+    if (!res.ok) return;
+    const cfg = await res.json();
+    if (cfg.company) COMPANY = cfg.company;
+    if (cfg.id) COMPANY_CIF = cfg.id;
+  } catch (e) {
+    console.warn("company.json not available, using fallback constants");
+  }
+}
+
+const i18n = {
+  en: {
+    pageTitle: "EVOLUTION Jobs — peviitor.ro",
+    subtitle: "Automated scraper for EVOLUTION jobs",
+    jobsLabel: "Jobs",
+    verifiedLabel: "Verified",
+    aboutTitle: "About this scraper",
+    f1: "Extracts jobs from the careers.evolution.com board",
+    f2: "Parses the WordPress JSON API",
+    f3: "Validates company via ANAF",
+    f4: "Checks and removes expired jobs",
+    f5: "Saves to the Peviitor v1 API",
+    companyTitle: "About the company",
+    runBtn: "Run Scraper",
+    jobsTitle: "Available jobs",
+    jobsEmpty: "Loading...",
+    jobsMd: "Jobs MD",
+    testResults: "Test Results",
+    cif: "CIF",
+    brand: "Brand",
+    status: "Status",
+    cities: "Cities",
+    website: "Website",
+    career: "Career",
+    lastScrape: "Last scrape",
+    activeStatus: "active",
+  },
+  ro: {
+    pageTitle: "Locuri de muncă — peviitor.ro",
+    subtitle: "Scraper automat pentru locurile de muncă EVOLUTION",
+    jobsLabel: "Locuri de muncă",
+    verifiedLabel: "Verificate",
+    aboutTitle: "Despre acest scraper",
+    f1: "Extrage locuri de muncă de pe board-ul careers.evolution.com",
+    f2: "Parsează API-ul JSON WordPress",
+    f3: "Validează compania via ANAF",
+    f4: "Verifică și elimină locuri de muncă expirate",
+    f5: "Salvează în API-ul Peviitor v1",
+    companyTitle: "Despre companie",
+    runBtn: "Rulează Scraper",
+    jobsTitle: "Locuri de muncă disponibile",
+    jobsEmpty: "Se încarcă...",
+    jobsMd: "Jobs MD",
+    testResults: "Rezultate Teste",
+    cif: "CIF",
+    brand: "Brand",
+    status: "Status",
+    cities: "Orașe",
+    website: "Website",
+    career: "Career",
+    lastScrape: "Ultimul scrape",
+    activeStatus: "activ",
+  }
+};
+
+function applyDynamicTitle() {
+  const name = window.__companyName;
+  if (!name) return;
+  const lang = document.documentElement.lang;
+  const h1 = document.querySelector("h1[data-i18n='pageTitle']");
+  if (lang === "ro") {
+    document.title = `Locuri de muncă de la ${name} — peviitor.ro`;
+    if (h1) h1.textContent = `Locuri de muncă de la ${name}`;
+  } else {
+    document.title = `${name} Jobs — peviitor.ro`;
+    if (h1) h1.textContent = `${name} Jobs`;
+  }
+}
+
+function setLang(lang) {
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (i18n[lang] && i18n[lang][key] !== undefined) {
+      el.innerHTML = i18n[lang][key];
+    }
+  });
+  document.querySelectorAll(".lang-toggle button").forEach(btn => btn.classList.remove("active"));
+  document.getElementById("lang-" + lang).classList.add("active");
+  document.documentElement.lang = lang;
+  localStorage.setItem("peviitor-lang", lang);
+  applyDynamicTitle();
+}
+
+const saved = localStorage.getItem("peviitor-lang");
+if (saved === "en") setLang("en");
+else setLang("ro");
+
+async function loadStats() {
+  try {
+    const cRes = await fetch(`https://api.peviitor.ro/v1/company/?cif=${COMPANY_CIF}`, {
+      headers: { origin: "https://peviitor.ro", referer: "https://peviitor.ro/" }
+    });
+    const cData = await cRes.json();
+    const comp = cData.company;
+    if (comp) {
+      const lang = document.documentElement.lang || "ro";
+      const t = i18n[lang] || i18n.ro;
+      const statusValue = comp.status === "activ" ? t.activeStatus : comp.status;
+      const grid = document.getElementById("companyDetails");
+      grid.innerHTML = `
+        <div class="company-item"><strong>${t.cif}:</strong> ${comp.id}</div>
+        <div class="company-item"><strong>${t.brand}:</strong> ${comp.brand}</div>
+        <div class="company-item"><strong>${t.status}:</strong> ${statusValue}</div>
+        <div class="company-item"><strong>${t.cities}:</strong> ${(comp.location || []).join(", ") || "—"}</div>
+        <div class="company-item"><strong>${t.website}:</strong> <a href="${(comp.website || [])[0] || "#"}" target="_blank">${(comp.website || [])[0] || "—"}</a></div>
+        <div class="company-item"><strong>${t.career}:</strong> <a href="${(comp.career || [])[0] || "#"}" target="_blank">${(comp.career || [])[0] || "—"}</a></div>
+        <div class="company-item"><strong>${t.lastScrape}:</strong> ${comp.lastScraped || "—"}</div>
+      `;
+
+      window.__companyName = comp.company || COMPANY;
+      applyDynamicTitle();
+    }
+  } catch (e) {
+    console.error("Company load failed:", e);
+  }
+
+  try {
+    let verified = 0;
+    let vPage = 1;
+    while (true) {
+      const vRes = await fetch(`https://api.peviitor.ro/v1/search/?company=${encodeURIComponent(COMPANY)}&page=${vPage}`, {
+        headers: { origin: "https://peviitor.ro", referer: "https://peviitor.ro/" }
+      });
+      const vData = await vRes.json();
+      const vDocs = vData.response?.docs || [];
+      if (vDocs.length === 0) break;
+      vDocs.forEach((doc) => {
+        if (doc.cif === COMPANY_CIF && doc.status !== "expired") verified++;
+      });
+      vPage++;
+    }
+    document.getElementById("verifiedCount").textContent = verified;
+  } catch { document.getElementById("verifiedCount").textContent = "?"; }
+
+  const now = new Date();
+  document.getElementById("lastRunTime").textContent = now.toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" });
+  document.getElementById("lastRunDate").textContent = now.toLocaleDateString("ro-RO", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+  try {
+    const list = document.getElementById("jobsList");
+    const empty = document.getElementById("jobsEmpty");
+    list.innerHTML = "";
+    let page = 1;
+    let ourCount = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      const res = await fetch(`https://api.peviitor.ro/v1/search/?company=${encodeURIComponent(COMPANY)}&page=${page}`, {
+        headers: { origin: "https://peviitor.ro", referer: "https://peviitor.ro/" }
+      });
+      const data = await res.json();
+      const docs = data.response?.docs || [];
+      if (docs.length === 0) { hasMore = false; break; }
+
+      docs.forEach((job, idx) => {
+        if (job.cif !== COMPANY_CIF) return;
+        ourCount++;
+        const div = document.createElement("div");
+        div.className = "job-item";
+        const loc = Array.isArray(job.location) ? job.location.join(", ") : "";
+        const wm = job.workmode || "";
+        div.innerHTML = `
+          <span style="color:#9a8a7a; font-size:0.8rem; font-weight:600; margin-right:0.5rem;">${ourCount}.</span>
+          <a href="${job.url}" target="_blank">${job.title}</a>
+          <div class="job-meta">
+            ${loc ? `<span>&#128205; ${loc}</span>` : ""}
+            ${wm ? `<span>&#128188; ${wm}</span>` : ""}
+          </div>
+        `;
+        list.appendChild(div);
+      });
+      page++;
+    }
+
+    document.getElementById("jobsCount").textContent = ourCount;
+    if (ourCount === 0) {
+      empty.textContent = "Niciun loc de muncă disponibil.";
+    } else {
+      empty.style.display = "none";
+    }
+  } catch (e) {
+    console.error("Jobs load failed:", e);
+    document.getElementById("jobsCount").textContent = "?";
+    document.getElementById("jobsEmpty").textContent = "Nu s-au putut încărca job-urile.";
+  }
+}
+
+loadCompanyConfig().then(loadStats);
+setInterval(loadStats, 30000);
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node (template remnants)
+node_modules/
+
+# Scraper artifacts
+scraper/jobs.json
+scraper/anaf_cache.json
+
+# Temporary files
+tmp/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

@@ -1,0 +1,16 @@
+{
+  "id": "36034853",
+  "company": "EVOLUTION PRODUCTS RO S.R.L.",
+  "brand": "EVOLUTION",
+  "status": "activ",
+  "location": [
+    "Bucuresti"
+  ],
+  "website": [
+    "https://www.evolution.com"
+  ],
+  "career": [
+    "https://careers.evolution.com/romania/en/"
+  ],
+  "scraperFile": "https://github.com/ale23yfm/evolution-gaming-ro-python-scraper/actions/workflows/job-seeker-ro-spider.yml"
+}

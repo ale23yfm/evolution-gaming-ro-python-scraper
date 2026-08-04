@@ -1,0 +1,128 @@
+name: Oportunitati si Cariere
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6 AM
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Sync with remote
+        if: github.event_name != 'pull_request'
+        run: git pull origin main --rebase -X theirs
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
+
+      - name: Ensure company exists in company core
+        run: |
+          CIF=$(jq -r '.id' scraper/config/company.json)
+          LEGAL_NAME=$(jq -r '.company' scraper/config/company.json)
+          BRAND=$(jq -r '.brand' scraper/config/company.json)
+          WEBSITE=$(jq -r '.website[0]' scraper/config/company.json)
+          CAREER=$(jq -r '.career[0]' scraper/config/company.json)
+          DEFAULT_LOC=$(jq -r '.location[0]' scraper/config/company.json)
+          SCRAPER_FILE=$(jq -r '.scraperFile' scraper/config/company.json)
+          TODAY=$(date -u +%Y-%m-%d)
+
+          echo "Upserting ${BRAND} (CIF: ${CIF}) via peviitor API..."
+          jq -n \
+            --arg id "$CIF" \
+            --arg company "$LEGAL_NAME" \
+            --arg brand "$BRAND" \
+            --arg website "$WEBSITE" \
+            --arg career "$CAREER" \
+            --arg loc "$DEFAULT_LOC" \
+            --arg today "$TODAY" \
+            --arg scraperFile "$SCRAPER_FILE" \
+            '{id:$id,company:$company,brand:$brand,status:"activ",location:[$loc],website:[$website],career:[$career],lastScraped:$today,scraperFile:$scraperFile}' \
+            > company_data.json
+
+          curl -s -X PUT \
+            "https://api.peviitor.ro/v1/firme/company/add/" \
+            -H "Content-Type: application/json" \
+            --data-binary @company_data.json
+
+          FINAL=$(curl -s \
+            "https://api.peviitor.ro/v1/firme/company/?cif=${CIF}" | jq '.total')
+
+          echo "${BRAND} count after upsert: $FINAL"
+
+          if [ "$FINAL" -ge "1" ]; then
+            echo "SUCCESS: ${BRAND} is in company core"
+          else
+            echo "FAILED: ${BRAND} still not in company core"
+            exit 1
+          fi
+
+      - name: Pre-scrape — Unit Tests
+        run: |
+          mkdir -p docs/test-results
+          python3 -m pytest tests/unit tests/consistency \
+            --html=docs/test-results/pre-scrape-unit.html --self-contained-html || true
+
+      - name: Run scraper
+        run: python3 -m scraper.index
+
+      - name: Check for new jobs
+        run: |
+          if [ -f scraper/jobs.json ]; then
+            echo "New jobs found:"
+            jq '.jobs | length' scraper/jobs.json
+          else
+            echo "No new jobs or scrape failed"
+          fi
+
+      - name: Post-scrape — E2E Tests
+        run: |
+          mkdir -p docs/test-results
+          python3 -m pytest tests/e2e \
+            --html=docs/test-results/post-scrape-e2e.html --self-contained-html || true
+
+      - name: Post-scrape — Integration Tests
+        run: |
+          mkdir -p docs/test-results
+          python3 -m pytest tests/integration \
+            --html=docs/test-results/post-scrape-integration.html --self-contained-html || true
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: docs/test-results/
+          retention-days: 30
+
+      - name: Push test results to docs/
+        if: always()
+        run: |
+          mkdir -p docs/test-results
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/test-results/ || true
+          git add docs/jobs.md || true
+          git add docs/company.json || true
+          git commit -m "[skip ci] Update test results" || echo "No changes to commit"
+          git push || echo "Push failed (race condition) — will be picked up next run"
+
+      - name: Upload jobs JSON
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: scraped-jobs
+          path: scraper/jobs.json
+          retention-days: 7

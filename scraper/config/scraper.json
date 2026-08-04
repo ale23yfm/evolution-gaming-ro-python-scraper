@@ -1,0 +1,5 @@
+{
+  "apiBase": "https://careers.evolution.com",
+  "apiPath": "/wp-json/wp/v2/vacancies",
+  "jobDetailsPrefix": "https://careers.evolution.com/job/"
+}

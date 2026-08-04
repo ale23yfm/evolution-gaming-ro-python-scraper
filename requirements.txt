@@ -1,0 +1,6 @@
+requests>=2.31
+beautifulsoup4>=4.12
+pytest>=8.0
+pytest-cov>=4.1
+pytest-html>=4.1
+playwright>=1.40
