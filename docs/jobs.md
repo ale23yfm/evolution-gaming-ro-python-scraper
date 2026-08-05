@@ -8,13 +8,13 @@
 | Brand | EVOLUTION |
 | Website | https://www.evolution.com |
 | Career | https://careers.evolution.com/romania/en/ |
-| LastScraped | 2026-08-04 |
+| LastScraped | 2026-08-05 |
 
 ## Jobs (7)
 
 ### Senior Talent Acquisition Specialist
 
-- **URL**: [https://careers.evolution.com/job/744000141212159](https://careers.evolution.com/job/744000141212159)
+- **URL**: [https://careers.evolution.com/job/744000141212159/](https://careers.evolution.com/job/744000141212159/)
 - **Location**: Bucuresti
 - **Work Mode**: on-site
 - **Tags**: Human Resources
@@ -22,7 +22,7 @@
 
 ### Game Presenter
 
-- **URL**: [https://careers.evolution.com/job/744000141203305](https://careers.evolution.com/job/744000141203305)
+- **URL**: [https://careers.evolution.com/job/744000141203305/](https://careers.evolution.com/job/744000141203305/)
 - **Location**: Bucuresti
 - **Work Mode**: on-site
 - **Tags**: Operations
@@ -30,7 +30,7 @@
 
 ### Shuffler
 
-- **URL**: [https://careers.evolution.com/job/744000141202799](https://careers.evolution.com/job/744000141202799)
+- **URL**: [https://careers.evolution.com/job/744000141202799/](https://careers.evolution.com/job/744000141202799/)
 - **Location**: Bucuresti
 - **Work Mode**: on-site
 - **Tags**: Operations
@@ -38,7 +38,7 @@
 
 ### Uniform Specialist
 
-- **URL**: [https://careers.evolution.com/job/744000140620850](https://careers.evolution.com/job/744000140620850)
+- **URL**: [https://careers.evolution.com/job/744000140620850/](https://careers.evolution.com/job/744000140620850/)
 - **Location**: Bucuresti
 - **Work Mode**: on-site
 - **Tags**: Property Management
@@ -46,7 +46,7 @@
 
 ### HR Administrative Specialist
 
-- **URL**: [https://careers.evolution.com/job/744000138840089](https://careers.evolution.com/job/744000138840089)
+- **URL**: [https://careers.evolution.com/job/744000138840089/](https://careers.evolution.com/job/744000138840089/)
 - **Location**: Bucuresti
 - **Work Mode**: on-site
 - **Tags**: Human Resources
@@ -54,7 +54,7 @@
 
 ### Shuffler (відповідальний за тасування карт)
 
-- **URL**: [https://careers.evolution.com/job/744000105084275](https://careers.evolution.com/job/744000105084275)
+- **URL**: [https://careers.evolution.com/job/744000105084275/](https://careers.evolution.com/job/744000105084275/)
 - **Location**: Bucuresti
 - **Work Mode**: on-site
 - **Tags**: Operations
@@ -62,11 +62,11 @@
 
 ### Game Presenter (Ведучий ігор)
 
-- **URL**: [https://careers.evolution.com/job/744000105081748](https://careers.evolution.com/job/744000105081748)
+- **URL**: [https://careers.evolution.com/job/744000105081748/](https://careers.evolution.com/job/744000105081748/)
 - **Location**: Bucuresti
 - **Work Mode**: on-site
 - **Tags**: Operations
 - **Status**: scraped
 
 ---
-_Generated at 2026-08-04T07:56:09Z_
+_Generated at 2026-08-05T08:47:21Z_
