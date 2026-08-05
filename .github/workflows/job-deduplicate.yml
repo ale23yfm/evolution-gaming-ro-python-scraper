@@ -27,6 +27,11 @@ on:
         required: false
         default: '1'
         type: string
+      keep-url:
+        description: 'Force the keeper of each group to this URL; if not a member, the whole group is deleted'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   deduplicate:
@@ -55,5 +60,8 @@ jobs:
             ARGS="$ARGS --delete"
           else
             ARGS="$ARGS --dry-run"
+          fi
+          if [ -n "${{ inputs.keep-url }}" ]; then
+            ARGS="$ARGS --keep-url '${{ inputs.keep-url }}'"
           fi
           python3 -m scraper.deduplicate "${{ inputs.company }}" $ARGS

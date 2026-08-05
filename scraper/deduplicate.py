@@ -7,8 +7,9 @@ jobviewtrack.com that 302 to the same careerjet.ro jobad).
 
 Usage:
   python -m scraper.deduplicate <COMPANY> [--dry-run] [--delete] [--workers 8]
-                                       [--limit N] [--wait SECONDS] [--cache PATH]
-                                       [--cif CIF] [--company-name NAME]
+                                       [--delete-workers 8] [--limit N]
+                                       [--wait SECONDS] [--cache PATH]
+                                       [--cif CIF] [--company-name NAME] [--keep-url URL]
 
 Read-only by default. With ``--delete`` the duplicate listings of a group are
 removed (one listing per final URL is always kept) and each kept listing is
@@ -214,6 +215,7 @@ def find_duplicates(docs, workers=8, cache=None, wait=0):
             "final_url": info["final_url"],
             "keeper": keeper,
             "duplicates": dupes,
+            "members": members,
         })
     return duplicates
 
@@ -224,6 +226,8 @@ def main(argv=None):
     parser.add_argument("--dry-run", action="store_true", help="Do not delete anything")
     parser.add_argument("--delete", action="store_true", help="Delete duplicates and re-attribute the kept listings")
     parser.add_argument("--workers", type=int, default=8, help="Parallel redirect resolutions")
+    parser.add_argument("--delete-workers", type=int, default=8,
+                        help="Parallel deletes via the peviitor API")
     parser.add_argument("--limit", type=int, default=0, help="Process at most N docs (0 = all)")
     parser.add_argument("--wait", type=float, default=0,
                         help="Seconds to wait between URL resolutions (avoid rate limiting)")
@@ -232,6 +236,10 @@ def main(argv=None):
     parser.add_argument("--cif", default=company_config["id"], help="CIF for kept listings (default: company model)")
     parser.add_argument("--company-name", default=company_config["company"],
                         help="Company name for kept listings (default: company model)")
+    parser.add_argument("--keep-url", default=None,
+                        help="Force the keeper of each group to this URL. If the URL is not among the "
+                             "members, the whole group is deleted (the keeper is assumed to already "
+                             "exist elsewhere) and nothing is upserted for it.")
     args = parser.parse_args(argv)
 
     print(f"Fetching jobs for company '{args.company}'...")
@@ -244,6 +252,14 @@ def main(argv=None):
     duplicates = find_duplicates(docs, workers=args.workers, cache=cache, wait=args.wait)
     if cache:
         cache.save()
+
+    for group in duplicates:
+        keeper = group["keeper"]
+        if args.keep_url:
+            keeper = next((m for m in group["members"] if m.get("url") == args.keep_url), None)
+        group["keeper"] = keeper
+        group["duplicates"] = [m for m in group["members"] if m is not keeper]
+
     to_remove = sum(len(g["duplicates"]) for g in duplicates)
     print(f"Duplicate groups: {len(duplicates)} ({to_remove} listings to remove, one per group kept)\n")
 
@@ -253,7 +269,11 @@ def main(argv=None):
 
     for i, group in enumerate(duplicates, start=1):
         print(f"[{i}/{len(duplicates)}] final: {group['final_url']}")
-        print(f"    keep:   {group['keeper'].get('url')} (cif={args.cif}, company={args.company_name})")
+        keeper = group["keeper"]
+        if keeper is not None:
+            print(f"    keep:   {keeper.get('url')} (cif={args.cif}, company={args.company_name})")
+        else:
+            print(f"    keep:   {args.keep_url} (already re-attributed; deleting the whole group)")
         for dup in group["duplicates"]:
             print(f"    remove: {dup.get('url')}")
 
@@ -265,24 +285,35 @@ def main(argv=None):
         print("Use --delete to remove them, or --dry-run to preview.")
         return 1
 
+    keepers = []
     for group in duplicates:
         keeper = group["keeper"]
-        keeper["cif"] = args.cif
-        keeper["company"] = args.company_name
+        if keeper is not None:
+            keeper["cif"] = args.cif
+            keeper["company"] = args.company_name
+            keepers.append(keeper)
 
     deleted = 0
-    for group in duplicates:
-        for dup in group["duplicates"]:
-            url = dup.get("url", "")
-            try:
-                delete_job_by_url(url)
-                deleted += 1
-            except Exception as err:
-                print(f"  ⚠️ Failed to delete {url}: {err}")
+    failures = []
+    urls = [dup.get("url", "") for group in duplicates for dup in group["duplicates"]]
+
+    def _delete(url):
+        try:
+            delete_job_by_url(url)
+            return True
+        except Exception as err:
+            failures.append((url, err))
+            return False
+
+    with ThreadPoolExecutor(max_workers=args.delete_workers) as pool:
+        deleted = sum(pool.map(_delete, urls))
+    for url, err in failures:
+        print(f"  ⚠️ Failed to delete {url}: {err}")
     print(f"✅ Deleted {deleted} duplicate listing(s) via API.")
 
-    upsert_jobs([group["keeper"] for group in duplicates])
-    print(f"✅ Re-attributed {len(duplicates)} kept listing(s) to cif={args.cif} / company={args.company_name}.")
+    if keepers:
+        upsert_jobs(keepers)
+        print(f"✅ Re-attributed {len(keepers)} kept listing(s) to cif={args.cif} / company={args.company_name}.")
     return 0
 
 

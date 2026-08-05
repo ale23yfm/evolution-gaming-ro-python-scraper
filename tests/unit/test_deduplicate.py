@@ -142,7 +142,7 @@ def test_main_dry_run_does_not_mutate(monkeypatch, capsys):
     monkeypatch.setattr(dedupe, "search_jobs", mock.Mock(return_value=docs))
     monkeypatch.setattr(dedupe, "find_duplicates", mock.Mock(return_value=[
         {"key": "careerjet:aaa", "final_url": "https://www.careerjet.ro/jobad/ro" + "a" * 24,
-         "keeper": docs[0], "duplicates": [docs[1]]}]))
+         "keeper": docs[0], "duplicates": [docs[1]], "members": docs}]))
     delete_mock = mock.Mock()
     upsert_mock = mock.Mock()
     monkeypatch.setattr(dedupe, "delete_job_by_url", delete_mock)
@@ -158,7 +158,7 @@ def test_main_dry_run_does_not_mutate(monkeypatch, capsys):
 def test_main_delete_attribues_keeper(monkeypatch):
     docs = [_doc("https://jvt.com/a"), _doc("https://jvt.com/b")]
     group = {"key": "careerjet:aaa", "final_url": "https://www.careerjet.ro/jobad/ro" + "a" * 24,
-             "keeper": docs[0], "duplicates": [docs[1]]}
+             "keeper": docs[0], "duplicates": [docs[1]], "members": docs}
     monkeypatch.setattr(dedupe, "search_jobs", mock.Mock(return_value=docs))
     monkeypatch.setattr(dedupe, "find_duplicates", mock.Mock(return_value=[group]))
     delete_mock = mock.Mock()
@@ -173,6 +173,43 @@ def test_main_delete_attribues_keeper(monkeypatch):
     kept = upsert_mock.call_args.args[0][0]
     assert kept["cif"] == "36034853"
     assert kept["company"] == "EVOLUTION PRODUCTS RO S.R.L."
+
+
+def test_main_delete_keep_url_pinned(monkeypatch):
+    docs = [_doc("https://jvt.com/a"), _doc("https://jvt.com/b")]
+    group = {"key": "careerjet:aaa", "final_url": "https://www.careerjet.ro/jobad/ro" + "a" * 24,
+             "keeper": docs[0], "duplicates": [docs[1]], "members": docs}
+    monkeypatch.setattr(dedupe, "search_jobs", mock.Mock(return_value=docs))
+    monkeypatch.setattr(dedupe, "find_duplicates", mock.Mock(return_value=[group]))
+    delete_mock = mock.Mock()
+    upsert_mock = mock.Mock()
+    monkeypatch.setattr(dedupe, "delete_job_by_url", delete_mock)
+    monkeypatch.setattr(dedupe, "upsert_jobs", upsert_mock)
+
+    assert dedupe.main(["EVOLUTION GAMING", "--delete", "--keep-url", "https://jvt.com/b"]) == 0
+
+    delete_mock.assert_called_once_with("https://jvt.com/a")
+    upsert_mock.assert_called_once()
+    kept = upsert_mock.call_args.args[0][0]
+    assert kept["url"] == "https://jvt.com/b"
+
+
+def test_main_delete_keep_url_outside_group_deletes_all(monkeypatch, capsys):
+    docs = [_doc("https://jvt.com/a"), _doc("https://jvt.com/b")]
+    group = {"key": "careerjet:aaa", "final_url": "https://www.careerjet.ro/jobad/ro" + "a" * 24,
+             "keeper": docs[0], "duplicates": [docs[1]], "members": docs}
+    monkeypatch.setattr(dedupe, "search_jobs", mock.Mock(return_value=docs))
+    monkeypatch.setattr(dedupe, "find_duplicates", mock.Mock(return_value=[group]))
+    delete_mock = mock.Mock()
+    upsert_mock = mock.Mock()
+    monkeypatch.setattr(dedupe, "delete_job_by_url", delete_mock)
+    monkeypatch.setattr(dedupe, "upsert_jobs", upsert_mock)
+
+    assert dedupe.main(["EVOLUTION GAMING", "--delete", "--keep-url", "https://already-kept.example/job"]) == 0
+
+    assert delete_mock.call_count == 2
+    upsert_mock.assert_not_called()
+    assert "already re-attributed" in capsys.readouterr().out
 
 
 # ---------------------------------------------------------------------------
