@@ -212,6 +212,34 @@ def test_main_delete_keep_url_outside_group_deletes_all(monkeypatch, capsys):
     assert "already re-attributed" in capsys.readouterr().out
 
 
+def test_main_wipe_dry_run(monkeypatch, capsys):
+    docs = [_doc("https://jvt.com/a"), _doc("https://jvt.com/b")]
+    monkeypatch.setattr(dedupe, "search_jobs", mock.Mock(return_value=docs))
+    delete_mock = mock.Mock()
+    upsert_mock = mock.Mock()
+    monkeypatch.setattr(dedupe, "delete_job_by_url", delete_mock)
+    monkeypatch.setattr(dedupe, "upsert_jobs", upsert_mock)
+
+    assert dedupe.main(["EVOLUTION GAMING", "--wipe", "--dry-run"]) == 0
+    delete_mock.assert_not_called()
+    upsert_mock.assert_not_called()
+    assert "Wiping ALL 2 listing(s)" in capsys.readouterr().out
+
+
+def test_main_wipe_delete_deletes_all(monkeypatch, capsys):
+    docs = [_doc("https://jvt.com/a"), _doc("https://jvt.com/b")]
+    monkeypatch.setattr(dedupe, "search_jobs", mock.Mock(return_value=docs))
+    delete_mock = mock.Mock()
+    upsert_mock = mock.Mock()
+    monkeypatch.setattr(dedupe, "delete_job_by_url", delete_mock)
+    monkeypatch.setattr(dedupe, "upsert_jobs", upsert_mock)
+
+    assert dedupe.main(["EVOLUTION GAMING", "--wipe", "--delete"]) == 0
+    assert delete_mock.call_count == 2
+    upsert_mock.assert_not_called()
+    assert "Deleted 2 listing(s)" in capsys.readouterr().out
+
+
 # ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------

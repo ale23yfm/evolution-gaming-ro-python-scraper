@@ -6,7 +6,7 @@ redirects, land on the same final page (e.g. aggregator URLs such as
 jobviewtrack.com that 302 to the same careerjet.ro jobad).
 
 Usage:
-  python -m scraper.deduplicate <COMPANY> [--dry-run] [--delete] [--workers 8]
+  python -m scraper.deduplicate <COMPANY> [--dry-run] [--delete] [--wipe] [--workers 8]
                                        [--delete-workers 8] [--limit N]
                                        [--wait SECONDS] [--cache PATH]
                                        [--cif CIF] [--company-name NAME] [--keep-url URL]
@@ -15,6 +15,8 @@ Read-only by default. With ``--delete`` the duplicate listings of a group are
 removed (one listing per final URL is always kept) and each kept listing is
 re-attributed (upserted) with the CIF and company name from the company model.
 ``--cache PATH`` persists resolved URL keys so re-runs skip network lookups.
+``--wipe`` deletes every listing for the brand without grouping (no keeper);
+it is meant for junk brands whose jobs already exist canonically elsewhere.
 """
 
 import argparse
@@ -225,6 +227,9 @@ def main(argv=None):
     parser.add_argument("company", help="Company/brand name as indexed in SOLR (e.g. 'EVOLUTION GAMING')")
     parser.add_argument("--dry-run", action="store_true", help="Do not delete anything")
     parser.add_argument("--delete", action="store_true", help="Delete duplicates and re-attribute the kept listings")
+    parser.add_argument("--wipe", action="store_true",
+                        help="Delete ALL listings for the brand without grouping (no keeper kept). "
+                             "Read-only unless --delete is also given.")
     parser.add_argument("--workers", type=int, default=8, help="Parallel redirect resolutions")
     parser.add_argument("--delete-workers", type=int, default=8,
                         help="Parallel deletes via the peviitor API")
@@ -247,6 +252,32 @@ def main(argv=None):
     if args.limit:
         docs = docs[:args.limit]
     print(f"Total docs in SOLR: {len(docs)}")
+
+    if args.wipe:
+        print(f"⚠️ Wiping ALL {len(docs)} listing(s) for '{args.company}' (no keeper kept).")
+        if args.dry_run:
+            print("Dry run — nothing deleted.")
+            return 0
+        if not args.delete:
+            print("Use --delete to wipe them, or --dry-run to preview.")
+            return 1
+        failures = []
+        urls = [doc.get("url", "") for doc in docs]
+
+        def _delete(url):
+            try:
+                delete_job_by_url(url)
+                return True
+            except Exception as err:
+                failures.append((url, err))
+                return False
+
+        with ThreadPoolExecutor(max_workers=args.delete_workers) as pool:
+            deleted = sum(pool.map(_delete, urls))
+        for url, err in failures:
+            print(f"  ⚠️ Failed to delete {url}: {err}")
+        print(f"✅ Deleted {deleted} listing(s) via API.")
+        return 0
 
     cache = UrlCache(args.cache) if args.cache else None
     duplicates = find_duplicates(docs, workers=args.workers, cache=cache, wait=args.wait)

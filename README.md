@@ -46,6 +46,10 @@ python3 -m scraper.deduplicate "EVOLUTION GAMING" --dry-run
 # delete duplicates and re-attribute the kept listings with the
 # company model's CIF and company name (scraper/config/company.json)
 python3 -m scraper.deduplicate "EVOLUTION GAMING" --delete
+
+# wipe a junk brand entirely (no grouping, no keeper) — for brands whose
+# jobs already exist canonically under the company model
+python3 -m scraper.deduplicate "EVOLUTION GAMING" --wipe --delete
 ```
 
 The same can be triggered manually from the

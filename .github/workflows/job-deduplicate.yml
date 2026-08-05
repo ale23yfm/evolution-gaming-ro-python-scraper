@@ -32,6 +32,16 @@ on:
         required: false
         default: ''
         type: string
+      wipe:
+        description: 'Delete ALL listings for the company (no resolution, no keeper); requires delete=true'
+        required: false
+        default: 'false'
+        type: boolean
+      delete-workers:
+        description: 'Parallel deletes via the peviitor API (default: 8)'
+        required: false
+        default: '8'
+        type: string
 
 jobs:
   deduplicate:
@@ -52,7 +62,7 @@ jobs:
 
       - name: Run deduplicate
         run: |
-          ARGS="--workers ${{ inputs.workers }} --wait ${{ inputs.wait }}"
+          ARGS="--workers ${{ inputs.workers }} --wait ${{ inputs.wait }} --delete-workers ${{ inputs.delete-workers }}"
           if [ "${{ inputs.limit }}" != "0" ]; then
             ARGS="$ARGS --limit ${{ inputs.limit }}"
           fi
@@ -60,6 +70,9 @@ jobs:
             ARGS="$ARGS --delete"
           else
             ARGS="$ARGS --dry-run"
+          fi
+          if [ "${{ inputs.wipe }}" = "true" ]; then
+            ARGS="$ARGS --wipe"
           fi
           if [ -n "${{ inputs.keep-url }}" ]; then
             ARGS="$ARGS --keep-url '${{ inputs.keep-url }}'"
