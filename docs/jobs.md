@@ -8,9 +8,9 @@
 | Brand | EVOLUTION |
 | Website | https://www.evolution.com |
 | Career | https://careers.evolution.com/romania/en/ |
-| LastScraped | 2026-08-09 |
+| LastScraped | 2026-08-10 |
 
-## Jobs (7)
+## Jobs (6)
 
 ### Senior Talent Acquisition Specialist
 
@@ -34,14 +34,6 @@
 - **Location**: Bucuresti
 - **Work Mode**: on-site
 - **Tags**: Operations
-- **Status**: scraped
-
-### Uniform Specialist
-
-- **URL**: [https://careers.evolution.com/job/744000140620850/](https://careers.evolution.com/job/744000140620850/)
-- **Location**: Bucuresti
-- **Work Mode**: on-site
-- **Tags**: Property Management
 - **Status**: scraped
 
 ### HR Administrative Specialist
@@ -69,4 +61,4 @@
 - **Status**: scraped
 
 ---
-_Generated at 2026-08-09T07:06:44Z_
+_Generated at 2026-08-10T07:55:05Z_
