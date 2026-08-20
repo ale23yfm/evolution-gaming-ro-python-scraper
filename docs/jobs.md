@@ -8,7 +8,7 @@
 | Brand | EVOLUTION |
 | Website | https://www.evolution.com |
 | Career | https://careers.evolution.com/romania/en/ |
-| LastScraped | 2026-08-19 |
+| LastScraped | 2026-08-20 |
 
 ## Jobs (5)
 
@@ -53,4 +53,4 @@
 - **Status**: scraped
 
 ---
-_Generated at 2026-08-19T06:55:30Z_
+_Generated at 2026-08-20T06:56:35Z_
