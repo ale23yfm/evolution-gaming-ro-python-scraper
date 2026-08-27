@@ -8,9 +8,17 @@
 | Brand | EVOLUTION |
 | Website | https://www.evolution.com |
 | Career | https://careers.evolution.com/romania/en/ |
-| LastScraped | 2026-08-26 |
+| LastScraped | 2026-08-27 |
 
-## Jobs (5)
+## Jobs (6)
+
+### IT Support Engineer
+
+- **URL**: [https://careers.evolution.com/job/744000145948809/](https://careers.evolution.com/job/744000145948809/)
+- **Location**: Bucuresti
+- **Work Mode**: on-site
+- **Tags**: Engineering
+- **Status**: scraped
 
 ### Senior Talent Acquisition Specialist
 
@@ -53,4 +61,4 @@
 - **Status**: scraped
 
 ---
-_Generated at 2026-08-26T06:59:41Z_
+_Generated at 2026-08-27T17:33:16Z_
