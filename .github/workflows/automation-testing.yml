@@ -162,7 +162,7 @@ jobs:
           mkdir -p docs/test-results
           COMPANY_NAME=$(jq -r '.company' scraper/config/company.json 2>/dev/null || echo "Scraper")
           NAV_ITEMS=""
-          add_nav() { [ -f "docs/test-results/$1.html" ] && NAV_ITEMS="${NAV_ITEMS}<a href=\"$1.html\" style=\"color:#9a9fac;text-decoration:none;margin-left:1rem\">$2</a>"; }
+          add_nav() { if [ -f "docs/test-results/$1.html" ]; then NAV_ITEMS="${NAV_ITEMS}<a href=\"$1.html\" style=\"color:#9a9fac;text-decoration:none;margin-left:1rem\">$2</a>"; fi; }
           add_nav pre-scrape-unit "Unit"
           add_nav pre-scrape-integration "Integration"
           add_nav post-scrape "E2E"
