@@ -53,11 +53,11 @@ Then check:
 ## GitHub Pages
 
 ```bash
-gh api repos/ale23yfm/evolution-gaming-ro-python-scraper/pages --jq .html_url
-curl -s -o /dev/null -w "%{http_code}\n" https://ale23yfm.github.io/evolution-gaming-ro-python-scraper/
+gh api repos/peviitor-scrapers/evolution-gaming-ro-python-scraper/pages --jq .html_url
+curl -s -o /dev/null -w "%{http_code}\n" https://peviitor-scrapers.github.io/evolution-gaming-ro-python-scraper/
 ```
 
-Expect: `https://ale23yfm.github.io/evolution-gaming-ro-python-scraper/` and HTTP `200`.
+Expect: `https://peviitor-scrapers.github.io/evolution-gaming-ro-python-scraper/` and HTTP `200`.
 The site is built from `docs/` on `main` (source: branch `main`, path `/docs`).
 
 ## GitHub Actions

@@ -156,6 +156,68 @@ jobs:
           path: docs/test-results/post-scrape.html
           retention-days: 30
 
+      - name: Generate test-results index
+        if: always()
+        run: |
+          mkdir -p docs/test-results
+          COMPANY_NAME=$(jq -r '.company' scraper/config/company.json 2>/dev/null || echo "Scraper")
+          NAV_ITEMS=""
+          add_nav() { [ -f "docs/test-results/$1.html" ] && NAV_ITEMS="${NAV_ITEMS}<a href=\"$1.html\" style=\"color:#9a9fac;text-decoration:none;margin-left:1rem\">$2</a>"; }
+          add_nav pre-scrape-unit "Unit"
+          add_nav pre-scrape-integration "Integration"
+          add_nav post-scrape "E2E"
+          add_nav post-scrape-consistency "Consistency"
+          NAVBAR="<div data-pv-navbar style=\"font-family:'JetBrains Mono',monospace;background:#131317;border-bottom:2px solid #e0122a;color:#9a9fac;padding:.6rem 1.1rem;font-size:.75rem;letter-spacing:.04em\"><a href=\"../\" style=\"color:#e0122a;text-decoration:none;font-weight:700\">&larr; DASHBOARD</a>${NAV_ITEMS}</div>"
+          NAVBAR_ESC=$(printf '%s' "$NAVBAR" | sed 's/[&\]/\\&/g')
+          for f in docs/test-results/*.html; do
+            [ -f "$f" ] || continue
+            case "$f" in */index.html) continue;; esac
+            grep -q "data-pv-navbar" "$f" 2>/dev/null && continue
+            sed -i "s|<body>|<body>${NAVBAR_ESC}|" "$f" || true
+          done
+          BASE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME:-main}"
+          BASE_URL_ESC=$(printf '%s' "$BASE_URL" | sed 's/[&\]/\\&/g')
+          for f in docs/test-results/*.html; do
+            [ -f "$f" ] || continue
+            case "$f" in */index.html) continue;; esac
+            grep -q 'suite-path"><a ' "$f" 2>/dev/null && continue
+            sed -i -E "s|<div class=\"suite-path\">${GITHUB_WORKSPACE}/([^<]*)</div>|<div class=\"suite-path\"><a href=\"${BASE_URL_ESC}/\1\" target=\"_blank\" rel=\"noopener\" style=\"color:inherit;text-decoration:underline\">\1</a></div>|g" "$f" || true
+          done
+          {
+            echo "<!DOCTYPE html><html lang=\"ro\"><head><meta charset=\"UTF-8\">"
+            echo "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+            echo "<title>Rezultate teste — ${COMPANY_NAME}</title>"
+            echo "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">"
+            echo "<link href=\"https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=JetBrains+Mono:wght@400;500;700&display=swap\" rel=\"stylesheet\">"
+            echo "<style>"
+            echo ":root{--ink:#eceef1;--ink-dim:#9a9fac;--ink-faint:#5c616e;--bg:#0a0a0d;--surface:#131317;--surface2:#1a1a20;--border:#2a2a32;--red:#e0122a;--red-dim:#8c0c1c;--radius:3px}"
+            echo "*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}"
+            echo "body{font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--ink);min-height:100vh;padding:2rem 1.25rem 4rem}"
+            echo ".wrap{max-width:900px;margin:0 auto}"
+            echo "h1{font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:1.4rem;margin-bottom:.3rem}"
+            echo "p.sub{color:var(--ink-faint);font-size:.8rem;margin-bottom:1.5rem}"
+            echo "a.back{color:var(--red);text-decoration:none;font-weight:700;font-size:.75rem;display:inline-block;margin-bottom:1rem}"
+            echo ".tests-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}"
+            echo ".test-card{background:var(--surface);padding:1.1rem;text-decoration:none;color:var(--ink);border-top:2px solid transparent;transition:.15s}"
+            echo ".test-card:hover{border-top-color:var(--red);background:var(--surface2)}"
+            echo ".test-card .t{font-family:'Oswald',sans-serif;font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.03em}"
+            echo ".test-card .s{color:var(--ink-faint);font-size:.72rem;margin-top:.3rem}"
+            echo "</style></head><body><div class=\"wrap\">"
+            echo "<a class=\"back\" href=\"../\">&larr; DASHBOARD</a>"
+            echo "<h1>Rezultate teste</h1><p class=\"sub\">${COMPANY_NAME}</p>"
+            echo "<div class=\"tests-grid\">"
+            add_entry() {
+              local file="$1" title="$2"
+              if [ -f "docs/test-results/${file}.html" ]; then
+                echo "<a class=\"test-card\" href=\"${file}.html\"><div class=\"t\">${title}</div><div class=\"s\">View report &rarr;</div></a>"
+              fi
+            }
+            add_entry pre-scrape-unit "Unit + Consistency Tests"
+            add_entry pre-scrape-integration "Integration Tests"
+            add_entry post-scrape "E2E Tests"
+            echo "</div></div></body></html>"
+          } > docs/test-results/index.html
+
       - name: Push test results to docs/
         if: always()
         run: |

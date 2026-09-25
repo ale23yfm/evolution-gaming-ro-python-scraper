@@ -5,7 +5,7 @@
 Before any work, check open issues and fix them:
 
 ```bash
-gh issue list --repo ale23yfm/evolution-gaming-ro-python-scraper --state open
+gh issue list --repo peviitor-scrapers/evolution-gaming-ro-python-scraper --state open
 ```
 
 Prioritize `critical` → `bug` → `enhancement` → `documentation`. For each

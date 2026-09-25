@@ -1,6 +1,6 @@
 # Issues
 
-Acest proiect folosește [GitHub Issues](https://github.com/ale23yfm/evolution-gaming-ro-python-scraper/issues) pentru a urmări munca.
+Acest proiect folosește [GitHub Issues](https://github.com/peviitor-scrapers/evolution-gaming-ro-python-scraper/issues) pentru a urmări munca.
 
 ## Regulă
 
@@ -19,7 +19,7 @@ Excepții:
 
 ## Issue-uri deschise
 
-Vezi [toate issue-urile](https://github.com/ale23yfm/evolution-gaming-ro-python-scraper/issues).
+Vezi [toate issue-urile](https://github.com/peviitor-scrapers/evolution-gaming-ro-python-scraper/issues).
 
 ## Common issues
 

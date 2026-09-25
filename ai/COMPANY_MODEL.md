@@ -46,6 +46,6 @@ config when available.
   "location": ["Bucuresti"],
   "website": ["https://www.evolution.com"],
   "career": ["https://careers.evolution.com/romania/en/"],
-  "scraperFile": "https://github.com/ale23yfm/evolution-gaming-ro-python-scraper/actions/workflows/job-seeker-ro-spider.yml"
+  "scraperFile": "https://github.com/peviitor-scrapers/evolution-gaming-ro-python-scraper/actions/workflows/job-seeker-ro-spider.yml"
 }
 ```
